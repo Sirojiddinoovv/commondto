@@ -45,12 +45,16 @@ sealed class ProcessData<out D> : HasResult, TimeOutResult {
     override fun isTimeOut(): Boolean = this === TimeOut
 
     companion object {
+
+        @JvmStatic
         fun <D> ok(data: D): ProcessData<D> =
             Success(data)
 
+        @JvmStatic
         fun <D> error(code: Int, message: String): ProcessData<D> =
             Failure(ActionResult(code, message))
 
+        @JvmStatic
         fun <D> timeout(message: String): ProcessData<D> =
             Failure(ActionResult(ProcessStatus.TIME_OUT.code, message))
     }

@@ -56,12 +56,16 @@ sealed class ResultResponse<out R> {
         }
 
     companion object {
+
+        @JvmStatic
         fun <R> ok(result: R): ResultResponse<R> =
             Success(result)
 
+        @JvmStatic
         fun <R> error(code: Int, message: String): ResultResponse<R> =
             Failure(ActionResult(code, message))
 
+        @JvmStatic
         fun <R> error(state: ResultState, message: String): ResultResponse<R> =
             Failure(ActionResult(state.code, message))
     }
