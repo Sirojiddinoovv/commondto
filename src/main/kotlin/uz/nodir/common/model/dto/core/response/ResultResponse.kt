@@ -4,8 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
+import uz.nodir.common.model.dto.core.response.result.ActionResult
 import uz.nodir.common.model.enums.ResponseStatus
 import uz.nodir.common.model.enums.ResultState
+import uz.nodir.common.utils.DateUtils
+import java.time.LocalDateTime
+import java.util.*
 
 
 /**
@@ -21,16 +25,24 @@ sealed class ResultResponse<out R> {
 
     abstract val code: Int
     abstract val status: ResponseStatus
+    abstract val message: String
+    abstract val timestamp: LocalDateTime
+    abstract val traceId: UUID
+
 
     val isSuccess: Boolean
         get() = this is Success<R>
 
     data class Success<out R>(
-        @JsonProperty("result")
-        val result: R
+        @JsonProperty("data")
+        val data: R
     ) : ResultResponse<R>() {
         override val code: Int = 0
         override val status: ResponseStatus = ResponseStatus.SUCCESS
+        override val message: String = "Операция выполнена успешно"
+        override val traceId: UUID = UUID.randomUUID()
+        override val timestamp: LocalDateTime = DateUtils.nowDateTime()
+
     }
 
     data class Failure(
@@ -39,6 +51,9 @@ sealed class ResultResponse<out R> {
     ) : ResultResponse<Nothing>() {
         override val code: Int = error.code!!
         override val status: ResponseStatus = ResponseStatus.FAILED
+        override val message: String = "Ошибка при обработке данных"
+        override val traceId: UUID = UUID.randomUUID()
+        override val timestamp: LocalDateTime = DateUtils.nowDateTime()
     }
 
     fun ResultResponse<*>.toMap(): Map<String, Any?> =
@@ -46,12 +61,19 @@ sealed class ResultResponse<out R> {
             is ResultResponse.Success -> mapOf(
                 "code" to code,
                 "status" to status,
-                "result" to result
+                "result" to data,
+                "message" to message,
+                "traceId" to traceId,
+                "timestamp" to timestamp
             )
+
             is ResultResponse.Failure -> mapOf(
                 "code" to code,
                 "status" to status,
-                "error" to error
+                "error" to error,
+                "message" to message,
+                "traceId" to traceId,
+                "timestamp" to timestamp
             )
         }
 

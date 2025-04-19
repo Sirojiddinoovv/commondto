@@ -15,6 +15,7 @@ enum class ResultState(
     PHONE_NOT_FOUND("Phone number of card not taken or not turned on", 1022),
     SMS_NOT_SENT("Problem with sms center", 1023),
     DATA_NOT_FOUND("Data not found!", 1024),
+    INCORRECT_DATA("Incorrect data!", 1025),
     ENTITY_NOT_FOUND("Entity not found!", 1026),
     INTERNAL_SERVER_ERROR("In Back something went wrong", 1027),
     SQL_EXCEPTION("Database process error", 1028),
@@ -26,5 +27,5 @@ enum class ResultState(
     BLOCK_OPERATION("This operation is blocked", 1034),
     NOT_IMPLEMENTED("Method or interface not implemented", 1035),
     INSUFFICIENT_FUNDS("Insufficient funds", 1037),
-    LIMIT_REACHED("Attempts limit exhausted", 1038)
+    LIMIT_REACHED("Attempts limit exhausted", 1038),
 }

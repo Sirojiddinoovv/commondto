@@ -1,4 +1,4 @@
-package uz.nodir.common.model.dto.core.response
+package uz.nodir.common.model.dto.core.response.result
 
 
 /**

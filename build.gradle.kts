@@ -5,10 +5,12 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "1.9.25"
     kotlin("plugin.serialization") version "1.9.25"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
+
 }
 
 group = "uz.nodir"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.2"
 
 java {
     toolchain {
@@ -54,4 +56,19 @@ allOpen {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks {
+    named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+        dependencies {
+            include(dependency("io.confluent:kafka-avro-serializer"))
+            include(dependency("io.confluent:kafka-schema-serializer"))
+            include(dependency("org.apache.avro:avro"))
+            include(dependency("io.confluent:kafka-schema-registry-client"))
+        }
+        // relocate("org.apache.avro", "shadow.org.apache.avro")
+    }
+    build {
+        dependsOn(shadowJar)
+    }
 }

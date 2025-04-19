@@ -2,6 +2,9 @@ package uz.nodir.common.model.dto.core.response
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import uz.nodir.common.model.dto.core.response.result.ActionResult
+import uz.nodir.common.model.dto.core.response.result.HasResult
+import uz.nodir.common.model.dto.core.response.result.TimeOutResult
 import uz.nodir.common.model.enums.ProcessStatus
 
 
