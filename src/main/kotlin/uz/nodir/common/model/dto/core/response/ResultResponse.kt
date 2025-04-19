@@ -21,7 +21,7 @@ import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-sealed class ResultResponse<out R> {
+sealed class ResultResponse<out R> : HasResult {
 
     abstract val code: Int
     abstract val status: ResponseStatus
@@ -30,17 +30,16 @@ sealed class ResultResponse<out R> {
     abstract val traceId: UUID
 
 
-    val isSuccess: Boolean
-        get() = this is Success<R>
-
     data class Success<out R>(
-        @JsonProperty("data")
-        val data: R
+        @JsonProperty("result")
+        val payload: R
     ) : ResultResponse<R>() {
         override val code: Int = 0
         override val status: ResponseStatus = ResponseStatus.SUCCESS
         override val message: String = "Операция выполнена успешно"
         override val traceId: UUID = UUID.randomUUID()
+        override fun isSuccess() = true
+
         override val timestamp: LocalDateTime = DateUtils.nowDateTime()
 
     }
@@ -54,28 +53,27 @@ sealed class ResultResponse<out R> {
         override val message: String = "Ошибка при обработке данных"
         override val traceId: UUID = UUID.randomUUID()
         override val timestamp: LocalDateTime = DateUtils.nowDateTime()
+        override fun isSuccess() = false
     }
 
-    fun ResultResponse<*>.toMap(): Map<String, Any?> =
-        when (this) {
-            is ResultResponse.Success -> mapOf(
-                "code" to code,
-                "status" to status,
-                "result" to data,
-                "message" to message,
-                "traceId" to traceId,
-                "timestamp" to timestamp
-            )
-
-            is ResultResponse.Failure -> mapOf(
-                "code" to code,
-                "status" to status,
-                "error" to error,
-                "message" to message,
-                "traceId" to traceId,
-                "timestamp" to timestamp
-            )
-        }
+    fun toMap(): Map<String, Any?> = when (this) {
+        is Success<*> -> mapOf(
+            "code"     to code,
+            "status"   to status,
+            "result"   to payload,
+            "message"  to message,
+            "traceId"  to traceId,
+            "timestamp" to timestamp
+        )
+        is Failure   -> mapOf(
+            "code"     to code,
+            "status"   to status,
+            "error"    to error,
+            "message"  to message,
+            "traceId"  to traceId,
+            "timestamp" to timestamp
+        )
+    }
 
     companion object {
 
@@ -90,5 +88,10 @@ sealed class ResultResponse<out R> {
         @JvmStatic
         fun <R> error(state: ResultState, message: String): ResultResponse<R> =
             Failure(ActionResult(state.code, message))
+    }
+
+    fun getResult(): R? = when (this) {
+        is ResultResponse.Success<R> -> payload
+        else -> null
     }
 }

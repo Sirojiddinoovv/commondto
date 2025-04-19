@@ -3,8 +3,6 @@ package uz.nodir.common.model.dto.core.response
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import uz.nodir.common.model.dto.core.response.result.ActionResult
-import uz.nodir.common.model.dto.core.response.result.HasResult
-import uz.nodir.common.model.dto.core.response.result.TimeOutResult
 import uz.nodir.common.model.enums.ProcessStatus
 
 
@@ -23,7 +21,7 @@ sealed class ProcessData<out D> : HasResult, TimeOutResult {
 
     @Serializable
     data class Success<out D>(
-        val data: D
+        val payload: D
     ) : ProcessData<D>() {
         override val code: Int = ProcessStatus.SUCCESS.code
         override val status: ProcessStatus = ProcessStatus.SUCCESS
@@ -61,4 +59,10 @@ sealed class ProcessData<out D> : HasResult, TimeOutResult {
         fun <D> timeout(message: String): ProcessData<D> =
             Failure(ActionResult(ProcessStatus.TIME_OUT.code, message))
     }
+
+    fun getData(): D? = when (this) {
+        is Success<D> -> payload
+        else -> null
+    }
+
 }
